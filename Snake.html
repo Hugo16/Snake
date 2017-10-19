@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>111</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .title{
+            font-size: 150px;
+            color: deepskyblue;
+            text-shadow: 2px 2px 5px black;
+        }
+    </style>
+    <script src="Snake.js"></script>
+</head>
+<body>
+
+<script>
+    // 蛇块的大小
+    let r = 25;
+    // 蛇的长度
+    let long = 5;
+    let gameBox = createElement("div",
+        {
+            width: 990 - (990 % r) + "px",
+            height: 480 - (480 % r) + "px",
+            margin: 100 + "px auto",
+            border: "1px solid skyblue",
+            position: "relative",
+        }
+    );
+    let playGround = createElement("div",
+        {
+            width: 990 - (990 % r) + "px",
+            height: 480 - (480 % r) + "px",
+            overflow: "hidden",
+            backgroundImage: "url(images/pg_bg.jpg)"
+        }
+    );
+    let cover = createElement("div",
+        {
+            width: 990 - (990 % r) + "px",
+            height: 480 - (480 % r) + "px",
+            padding: 10 + "px",
+            position: "absolute",
+            top: 0,
+            left: 0,
+            zIndex: 1
+        }
+    );
+    let text = createElement("span",
+        {
+            color: "lightskyblue",
+            fontSize: 25 + "px",
+            textShadow: "2px 2px 5px black",
+        }
+    );
+    let score = createElement("span",
+        {
+            color: "yellow",
+            fontSize: 25 + "px",
+            textShadow: "2px 2px 5px black",
+        }
+    );
+    let title = createElement("div",
+        {
+            color: "deepskyblue",
+            fontSize: 25 + "px",
+            textShadow: "2px 2px 5px black",
+        }
+    );
+
+    text.innerHTML = "Length：";
+    score.innerHTML = long;
+    title.innerHTML = "Snake";
+    title.className = "title";
+
+    cover.appendChild(text);
+    cover.appendChild(score);
+    cover.appendChild(title);
+    gameBox.appendChild(playGround);
+    gameBox.appendChild(cover);
+    document.body.appendChild(gameBox);
+
+
+    let snake = null;
+    let food = null;
+    document.onkeydown = function (event) {
+        let eve = event || window.event;
+
+
+        switch (eve.keyCode) {
+            // 回车
+            case 13:
+                cleanScreen(playGround);
+                snake = new Snake(
+                    {
+                        r: r,
+                        long: long,
+                        parent: playGround,
+                        positionX: 16 * r,
+                        positionY: 8 * r
+                    }
+                );
+                food = new Food(
+                    {
+                        parent: playGround
+                    },
+                    snake,
+                    score
+                );
+                snake.food = food;
+                food.render();
+                snake.autoMove();
+                break;
+            // 左
+            case 37:
+                snake.changeDirection("left");
+                break;
+            // 上
+            case 38:
+                snake.changeDirection("up");
+                break;
+            // 右
+            case 39:
+                snake.changeDirection("right");
+                break;
+            // 下
+            case 40:
+                snake.changeDirection("down");
+                break;
+        }
+    }
+</script>
+</body>
+</html>
