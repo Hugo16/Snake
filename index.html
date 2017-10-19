@@ -85,7 +85,7 @@
             color: "deepskyblue",
             fontSize: pw / 10 + "px",
             textShadow: "2px 2px 5px black",
-            transition: "all 0.3s linear"
+            transition: "all 0.2s linear"
         }
     );
     let enter = createElement("div",
@@ -97,7 +97,7 @@
             color: "deepskyblue",
             fontSize: pw / 16 + "px",
             textShadow: "2px 2px 5px black",
-            transition: "all 0.3s linear"
+            transition: "all 0.2s linear"
         }
     );
     text.innerHTML = "Length：";
@@ -191,9 +191,9 @@
         titleMusic.src = "source/titleMusic1.ogg"
         titleMusic.play();
         // 让标题文字隐藏
-        title.style.left = -500 + "px";
+        title.style.left = 200 + "px";
         title.style.opacity = 0;
-        enter.style.left = pw + 500 + "px";
+        enter.style.left = pw-200 + "px";
         enter.style.opacity = 0;
         // 再按下回车重新游戏
         doThing = newGame;
