@@ -9,42 +9,49 @@
             padding: 0;
             overflow: hidden;
         }
-        .title{
-            font-size: 150px;
-            color: deepskyblue;
-            text-shadow: 2px 2px 5px black;
-        }
     </style>
     <script src="Snake.js"></script>
 </head>
 <body>
-
 <script>
     // 蛇块的大小
     let r = 25;
     // 蛇的长度
     let long = 5;
+    // 场地宽度
+    let pw = 990;
+    // 场地高度
+    let ph = 480;
+    // 中心点
+    let middle = {
+        top: parseInt(ph / r / 2) * r,
+        left: parseInt(pw / r / 2 + long / 2) * r,
+    };
+
+    // 添加场景等元素
     let gameBox = createElement("div",
         {
-            width: 990 - (990 % r) + "px",
-            height: 480 - (480 % r) + "px",
+            width: pw - (pw % r) + "px",
+            height: ph - (ph % r) + "px",
             margin: 100 + "px auto",
             border: "1px solid skyblue",
             position: "relative",
         }
     );
+    // 游戏场地
     let playGround = createElement("div",
         {
-            width: 990 - (990 % r) + "px",
-            height: 480 - (480 % r) + "px",
+            width: pw - (pw % r) + "px",
+            height: ph - (ph % r) + "px",
             overflow: "hidden",
             backgroundImage: "url(images/pg_bg.jpg)"
         }
     );
+    // 文字部分
     let cover = createElement("div",
         {
-            width: 990 - (990 % r) + "px",
-            height: 480 - (480 % r) + "px",
+            width: pw - (pw % r) + "px",
+            height: ph - (ph % r) + "px",
             padding: 10 + "px",
             position: "absolute",
             top: 0,
@@ -52,69 +59,155 @@
             zIndex: 1
         }
     );
+    // 分数部分
     let text = createElement("span",
         {
             color: "lightskyblue",
-            fontSize: 25 + "px",
+            fontSize: pw / 40 + "px",
             textShadow: "2px 2px 5px black",
         }
     );
     let score = createElement("span",
         {
             color: "yellow",
-            fontSize: 25 + "px",
+            fontSize: pw / 40 + "px",
             textShadow: "2px 2px 5px black",
         }
     );
+    // 标题部分
     let title = createElement("div",
         {
+
+            top: 50 + "%",
+            left: 50 + "%",
+            transform: "translate(-50%,-50%)",
+            position: "absolute",
             color: "deepskyblue",
-            fontSize: 25 + "px",
+            fontSize: pw / 10 + "px",
             textShadow: "2px 2px 5px black",
+            transition: "all 0.3s linear"
         }
     );
-
+    let enter = createElement("div",
+        {
+            top: 50 + "%",
+            left: 50 + "%",
+            transform: "translate(-50%,-50%)",
+            position: "absolute",
+            color: "deepskyblue",
+            fontSize: pw / 16 + "px",
+            textShadow: "2px 2px 5px black",
+            transition: "all 0.3s linear"
+        }
+    );
     text.innerHTML = "Length：";
     score.innerHTML = long;
     title.innerHTML = "Snake";
+    enter.innerHTML = "Enter";
 
+    // 音效
+    let titleMusic = createElement("audio");
+    let eatMusic = createElement("audio");
+    eatMusic.src = "source/eat.ogg";
+    let deadMusic = createElement("audio");
+    deadMusic.src = "source/dead.mp3";
+
+    // 添加元素到页面
     cover.appendChild(text);
     cover.appendChild(score);
     cover.appendChild(title);
+    cover.appendChild(enter);
     gameBox.appendChild(playGround);
     gameBox.appendChild(cover);
     document.body.appendChild(gameBox);
+    document.body.appendChild(titleMusic);
+    document.body.appendChild(eatMusic);
+    document.body.appendChild(deadMusic);
+
+    // 最后调整标题的位置
+    title.style.top = title.offsetTop - title.offsetHeight / 2 - r + "px";
+    enter.style.top = enter.offsetTop + enter.offsetHeight / 2 + r + "px";
 
 
     let snake = null;
     let food = null;
+    let doThing = null;
+
+    /**
+     * @description 新建游戏
+     */
+    function newGame() {
+        // 如果之前已经有蛇了
+        if (snake) {
+            // 清除之前的蛇的计时器
+            clearInterval(snake.timer);
+            // 重置标题的位置
+            title.style.left = 50 +"%";
+            title.style.opacity = 1;
+            enter.style.left = 50 +"%";
+            enter.style.opacity = 1;
+            // 清屏
+            cleanScreen(playGround);
+        }
+        // 新建蛇
+        snake = new Snake(
+            {
+                r: r,
+                long: long,
+                parent: playGround,
+                positionX: middle.left,
+                positionY: middle.top,
+                music: deadMusic
+            }
+        );
+        // 新建食物
+        food = new Food(
+            {
+                parent: playGround
+            },
+            snake,
+            score,
+            eatMusic
+        );
+        // 播放标题音乐
+        titleMusic.src = "source/titleMusic.ogg";
+        titleMusic.play();
+        // 再按下回车开始游戏
+        doThing = startGame;
+    }
+    newGame();
+
+    /**
+     * @description 开始游戏
+     */
+    function startGame() {
+        // 绑定蛇的食物
+        snake.food = food;
+        // 绘制食物
+        food.render();
+        // 让蛇开始移动
+        snake.autoMove();
+        // 播放开始音乐
+        titleMusic.src = "source/titleMusic1.ogg"
+        titleMusic.play();
+        // 让标题文字隐藏
+        title.style.left = -500 + "px";
+        title.style.opacity = 0;
+        enter.style.left = pw + 500 + "px";
+        enter.style.opacity = 0;
+        // 再按下回车重新游戏
+        doThing = newGame;
+    }
+    doThing = startGame;
+
+    // 按键监听
     document.onkeydown = function (event) {
         let eve = event || window.event;
-
 
         switch (eve.keyCode) {
             // 回车
             case 13:
-                cleanScreen(playGround);
-                snake = new Snake(
-                    {
-                        r: r,
-                        long: long,
-                        parent: playGround,
-                        positionX: 16 * r,
-                        positionY: 8 * r
-                    }
-                );
-                food = new Food(
-                    {
-                        parent: playGround
-                    },
-                    snake,
-                    score
-                );
-                snake.food = food;
-                food.render();
-                snake.autoMove();
+                doThing();
                 break;
             // 左
             case 37:

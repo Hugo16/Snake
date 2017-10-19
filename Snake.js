@@ -103,6 +103,8 @@ Snake.prototype = {
         this.moving = false;
         // 蛇的默认长度
         this.long = this.option.long || 5;
+        // 死亡音效
+        this.music = this.option.music;
 
         // 新建一个蛇头保存到数组里
         let snakeHead = new SnakeHead(this.option);
@@ -179,6 +181,7 @@ Snake.prototype = {
             // 判断是否碰到自己
             if (snake.touchSelf(position[0], position[1])) {
                 clearInterval(snake.timer);
+                snake.music.play();
             }
 
             // 判断是否吃到食物
@@ -254,13 +257,15 @@ Snake.prototype = {
  * @param option 参数
  * @param snake 属于哪条蛇
  * @param score 分数元素
+ * @param music 音效
  * @constructor
  */
-function Food(option, snake, score) {
+function Food(option, snake, score, music) {
     SnakeBlock.call(this, option);
     this.bgColor = "yellow";
     this.r = snake.r;
     this.score = score;
+    this.music = music;
     // 设置食物的位置
     this.setPosition(snake);
 }
@@ -287,6 +292,8 @@ Food.prototype.setPosition = function (snake) {
 };
 // 食物被吃掉时调用的函数
 Food.prototype.beAte = function (snake) {
+    // 播放被吃掉的音乐
+    this.music.play();
     // 重新设置食物的位置
     this.setPosition(snake);
     this.node.style.left = this.positionX + "px";
@@ -297,19 +304,24 @@ Food.prototype.beAte = function (snake) {
 };
 
 /**
- *@description 创建元素
+ * @description 创建元素
  * @param tagName 标签名称
  * @param option 属性对象
  * @returns {Element}
  */
-function createElement(tagName,option) {
-    var ele = document.createElement(tagName);
-    for (var key in option) {
-        ele.style[key] = option[key];
+function createElement(tagName, option) {
+    let ele = document.createElement(tagName);
+    let opt = option || {};
+    for (let key in opt) {
+        ele.style[key] = opt[key];
     }
     return ele;
-}
+};
 
+/**
+ * @description 清屏
+ * @param ele 要清屏的元素
+ */
 function cleanScreen(ele) {
     let object = ele;
     let j = object.children.length;
