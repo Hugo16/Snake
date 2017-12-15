@@ -2,4 +2,4 @@
 
 A little game.
 
-[Play](http://snake.xiexiaoguo.com)
+[Play](https://hugo16.github.io/Snake/)
